@@ -6,4 +6,4 @@
 
 
 
-This project aims to implement a parser that consumes Tomorrow's monthly statement PDF and convert it into a CSV file to be imported in Money Money.
+This project aims to implement a parser that consumes Tomorrow's monthly statement PDF and converts it into a CSV file to be imported in Money Money.
