@@ -42,6 +42,8 @@ def convert_to_iso_date(date_section_title):
             isodate = isodate + "0" + match.group(1)
         else:
             isodate = isodate + match.group(1)
+    return isodate
+
 
 class TomorrowDocument:
     document: PDFDocument
@@ -52,21 +54,44 @@ class TomorrowDocument:
     def find_date_section_elements(self):
         return self.document.elements.filter_by_regex(date_sep_regex)
 
-    def create_sections(self, date_section_elements):
+    def find_closing_element(self):
+        element_list = self.document.elements.filter_by_text_equal("ZUSAMMENFASSUNG")
+        if (element_list.__len__() > 1):
+            exit(-1)
+        else:
+            return element_list.extract_single_element();
+
+    def create_date_sections(self, date_section_elements, closing_element):
         # iterate length of ElementList
-        for i in range(date_section_elements.__len__()-1):
+        for i in range(date_section_elements.__len__()):
             name = convert_to_iso_date(date_section_elements.__getitem__(i))
+
             # for the last element of ElementList
             if i == date_section_elements.__len__() - 1:
-                section = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
-                                                             date_section_elements.__getitem__(i + 1))
+                self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
+                                                        closing_element)
             # ... for all other elements
-            # else:
-            #     self.document.sectioning.create_section(date_section_elements.__getitem__(i),)
+            else:
+                section = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
+                                                                  date_section_elements.__getitem__(i + 1), False)
 
     def process(self):
+        closing_element = self.find_closing_element()
         date_section_elements = self.find_date_section_elements()
-        self.create_sections(date_section_elements)
+        self.create_date_sections(date_section_elements, closing_element)
+        for date_section in self.document.sectioning.sections:
+            self.tag_transaction_section_elements_with_date(date_section)
+        self.document.elements.fil
+
+    def tag_transaction_section_elements_with_date(self):
+        for date_section in self.document.sectioning.sections:
+            transaction_headers = date_section.elements.filter_by_font("QBKQTR+SimplonNorm-Medium-Identity-H,9.0")
+            transaction_headers.add_tag_to_elements(date_section.name)
+
+
+
+        print(date_section.name)
+        date_section.elements.filter_by_font("QBKQTR+SimplonNorm-Medium-Identity-H,9.0")
 
 
 if __name__ == "__main__":

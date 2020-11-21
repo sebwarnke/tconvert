@@ -5,5 +5,7 @@ class Transaction:
         self.date = date
         self.amount = amount
 
+
+
     def to_csv(self):
         return ""
