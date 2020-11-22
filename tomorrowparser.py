@@ -7,7 +7,8 @@ from py_pdf_parser.components import PDFDocument
 date_sep_regex = "^(MONTAG|DIENSTAG|MITTWOCH|DONNERSTAG|FREITAG|SAMSTAG|SONNTAG),\s(\d{1,2}\.\s(JANUAR|FEBRUAR|MÄRY|APRIL|MAI|JUNI|JULI|AUGUST|SEPTEMBER|OKTOBER|NOVEMBER|DEZEMBER)\s\d{4})$"
 date_regex = "^\D*(\d{1,2})\.\s(JANUAR|FEBRUAR|MÄRY|APRIL|MAI|JUNI|JULI|AUGUST|SEPTEMBER|OKTOBER|NOVEMBER|DEZEMBER)\s(\d{4})$"
 
-def month_name_to_number (monthname):
+
+def month_name_to_number(monthname):
     if monthname == "JANUAR":
         return "1"
     if monthname == "FEBRUAR":
@@ -45,8 +46,10 @@ def convert_to_iso_date(date_section_title):
     return isodate
 
 
-class TomorrowDocument:
+class TomorrowParser:
     document: PDFDocument
+    date_section_unique_names = []
+    transaction_section_unique_names = []
 
     def __init__(self, pdf_document):
         self.document = pdf_document
@@ -68,30 +71,44 @@ class TomorrowDocument:
 
             # for the last element of ElementList
             if i == date_section_elements.__len__() - 1:
-                self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
-                                                        closing_element)
+                unique_name = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
+                                                                      closing_element).unique_name
             # ... for all other elements
             else:
-                section = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
-                                                                  date_section_elements.__getitem__(i + 1), False)
+                unique_name = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
+                                                                      date_section_elements.__getitem__(i + 1),
+                                                                      False).unique_name
+            self.date_section_unique_names.append(unique_name)
 
     def process(self):
         closing_element = self.find_closing_element()
         date_section_elements = self.find_date_section_elements()
         self.create_date_sections(date_section_elements, closing_element)
-        for date_section in self.document.sectioning.sections:
-            self.tag_transaction_section_elements_with_date(date_section)
-        self.document.elements.fil
+        self.tag_transaction_section_elements_with_date()
 
     def tag_transaction_section_elements_with_date(self):
-        for date_section in self.document.sectioning.sections:
+        for date_section_unique_name in self.date_section_unique_names:
+
+            date_section = self.document.sectioning.get_section(date_section_unique_name)
+
             transaction_headers = date_section.elements.filter_by_font("QBKQTR+SimplonNorm-Medium-Identity-H,9.0")
-            transaction_headers.add_tag_to_elements(date_section.name)
+            for i in range(transaction_headers.__len__()):
+                if i < transaction_headers.__len__() - 1:
+                    transaction_section_unique_name = self.document.sectioning.create_section(
+                        date_section.name + "_" + transaction_headers.__getitem__(i).text(),
+                        transaction_headers.__getitem__(i), transaction_headers.__getitem__(i + 1)).unique_name
+                else:
+                    transaction_section_unique_name = self.document.sectioning.create_section(
+                        date_section.name + "_" + transaction_headers.__getitem__(i).text(),
+                        transaction_headers.__getitem__(i),
+                        date_section.elements.__getitem__(date_section.elements.__len__() - 1)).unique_name
+                self.transaction_section_unique_names.append(transaction_section_unique_name)
 
-
-
-        print(date_section.name)
-        date_section.elements.filter_by_font("QBKQTR+SimplonNorm-Medium-Identity-H,9.0")
+        for unique_name in self.transaction_section_unique_names:
+            section = self.document.sectioning.get_section(unique_name)
+            print(section.name)
+            for element in section.elements:
+                print("  " + element.text())
 
 
 if __name__ == "__main__":
@@ -99,5 +116,5 @@ if __name__ == "__main__":
     parser.add_argument("file_path")
     args = parser.parse_args()
     document = load_file(args.file_path)
-    tomorrow_document = TomorrowDocument(document)
-    tomorrow_document.process()
+    tomorrow_parser = TomorrowParser(document)
+    tomorrow_parser.process()
