@@ -72,7 +72,7 @@ class TomorrowParser:
             # for the last element of ElementList
             if i == date_section_elements.__len__() - 1:
                 unique_name = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
-                                                                      closing_element).unique_name
+                                                                      closing_element, False).unique_name
             # ... for all other elements
             else:
                 unique_name = self.document.sectioning.create_section(name, date_section_elements.__getitem__(i),
@@ -81,12 +81,15 @@ class TomorrowParser:
             self.date_section_unique_names.append(unique_name)
 
     def process(self):
+
+        self.ignore_footers()
         closing_element = self.find_closing_element()
         date_section_elements = self.find_date_section_elements()
         self.create_date_sections(date_section_elements, closing_element)
-        self.tag_transaction_section_elements_with_date()
+        self.create_transaction_sections()
+        self.parse_transaction_sections()
 
-    def tag_transaction_section_elements_with_date(self):
+    def create_transaction_sections(self):
         for date_section_unique_name in self.date_section_unique_names:
 
             date_section = self.document.sectioning.get_section(date_section_unique_name)
@@ -104,11 +107,50 @@ class TomorrowParser:
                         date_section.elements.__getitem__(date_section.elements.__len__() - 1)).unique_name
                 self.transaction_section_unique_names.append(transaction_section_unique_name)
 
+        # for unique_name in self.transaction_section_unique_names:
+        #     section = self.document.sectioning.get_section(unique_name)
+        #     print(section.name)
+        #     for element in section.elements:
+        #         print("  " + element.text())
+
+    def parse_transaction_sections(self):
         for unique_name in self.transaction_section_unique_names:
+
             section = self.document.sectioning.get_section(unique_name)
-            print(section.name)
-            for element in section.elements:
-                print("  " + element.text())
+            amount = section.elements.filter_by_regex("^[+|-](((?:[1-9]\d{0,2}(,\d{3})*)|0)?\.\d{1,2})\s€$")\
+                .extract_single_element().text()
+            amount = amount.strip("+€ ").replace(",", "")
+
+            contact = section.elements.__getitem__(0).text()
+
+            type = section.elements.filter_by_regex("Überweisung|Kartenzahlung").extract_single_element().text()
+
+            iban_bic = section.elements.filter_by_text_contains("IBAN").extract_single_element().text()
+            match = re.search("[A-Z]{2}[0-9]{2}(?:[ ]?[0-9]{4}){4}(?!(?:[ ]?[0-9]){3})(?:[ ]?[0-9]{1,2})?", iban_bic)
+            if match is not None:
+                iban = match.group(0)
+            else:
+                iban = None
+
+            match = re.search("BIC:\s(\w+)", iban_bic)
+            if match is not None:
+                bic = match.group(1)
+            else:
+                bic = None
+
+
+            if section.elements.__len__() >= 5:
+                purpose = section.elements.__getitem__(section.elements.__len__()-1).text()
+            else:
+                purpose = None
+
+            if purpose is not None:
+                print(purpose)
+
+            transaction()
+
+    def ignore_footers(self):
+        self.document.elements.filter_by_text_contains("Erstellt am").ignore_elements()
 
 
 if __name__ == "__main__":
