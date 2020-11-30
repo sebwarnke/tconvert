@@ -67,8 +67,7 @@ class TomorrowParser:
         self.create_date_sections()
         self.create_transaction_sections()
         self.parse_transaction_sections()
-
-        self.statement.print()
+        return self.statement
 
     def find_closing_element(self):
         element_list = self.document.elements.filter_by_text_equal(closing_element_text)

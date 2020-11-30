@@ -1,6 +1,7 @@
 import argparse
 from py_pdf_parser.loaders import load_file
 from src.parser.tomorrow_parser import TomorrowParser
+from src.exporter.csv_exporter import write_csv
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -10,7 +11,9 @@ if __name__ == "__main__":
 
     if document is not None:
         tomorrow_parser = TomorrowParser(document)
-        tomorrow_parser.run()
+        statement = tomorrow_parser.run()
+        write_csv(statement, args.file_path.replace(".pdf", ".csv"))
+
     else:
         print("Document not found at path [" + args.filepath + "]")
         exit(-1)
