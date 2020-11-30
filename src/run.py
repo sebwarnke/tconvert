@@ -1,6 +1,6 @@
 import argparse
 from py_pdf_parser.loaders import load_file
-from TomorrowParser import TomorrowParser
+from src.parser.tomorrow_parser import TomorrowParser
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

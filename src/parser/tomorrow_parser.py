@@ -2,8 +2,8 @@ import re
 
 from py_pdf_parser.components import PDFDocument
 from py_pdf_parser.components import PDFElement
-from Transaction import Transaction
-from Statement import Statement
+from src.parser.transaction import Transaction
+from src.parser.statement import Statement
 
 closing_element_text = "ZUSAMMENFASSUNG"
 
