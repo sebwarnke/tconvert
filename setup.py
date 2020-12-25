@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='tomorrow-pdf-converter',
-    version='0.1.1',
+    version='1.0.0',
     url='https://github.com/sebwarnke/tomorrow-bank-statement-converter',
     license='MIT',
     author='Sebastian Warnke',
