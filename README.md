@@ -25,3 +25,16 @@ $ tconverter bankstatement.pdf
 ```
 
 This will create a `bankstatement.csv` file in the same location.
+
+### Manual
+
+```
+usage: tconverter [-h] file_path
+
+positional arguments:
+  file_path
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
