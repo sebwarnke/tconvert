@@ -2,8 +2,8 @@ import re
 
 from py_pdf_parser.components import PDFDocument
 from py_pdf_parser.components import PDFElement
-from src.parser.transaction import Transaction
-from src.parser.statement import Statement
+from tomorrow_pdf_converter.t_parser.transaction import Transaction
+from tomorrow_pdf_converter.t_parser.statement import Statement
 
 closing_element_text = "ZUSAMMENFASSUNG"
 
@@ -70,17 +70,19 @@ class TomorrowParser:
         return self.statement
 
     def find_closing_element(self):
+        print("Filtering for Closing Elements with text: " + closing_element_text)
         element_list = self.document.elements.filter_by_text_equal(closing_element_text)
         if element_list.__len__() > 1:
             print(
                 "Found more than one element with text ['" + closing_element_text + "']. Expected only one to be the closing element.")
             exit(-1)
         else:
-            self.closing_element =  element_list.extract_single_element();
+            self.closing_element = element_list.extract_single_element();
 
     # When this method returns we identified and created all sections referring to a date a transaction took place.
     # Each section was assigned a unique name which we stored.
     def create_date_sections(self):
+        print("Creating Sections per Date")
         date_section_elements = self.document.elements.filter_by_regex(date_sep_regex)
         # iterate length of ElementList
         for i in range(date_section_elements.__len__()):
@@ -97,14 +99,24 @@ class TomorrowParser:
                                                                       False).unique_name
             self.date_section_unique_names.append(unique_name)
 
+        print("-- Date Sections found: " + str(len(self.date_section_unique_names)))
+
     # When this method returns we identified and created all sections referring to an individual transaction.
     # Each section was assigned a unique name which we stored.
     def create_transaction_sections(self):
+        print("Creating Transaction Sections")
+
+        purpose_font_name = None
+
         for date_section_unique_name in self.date_section_unique_names:
 
             date_section = self.document.sectioning.get_section(date_section_unique_name)
 
-            transaction_headers = date_section.elements.filter_by_font("QBKQTR+SimplonNorm-Medium-Identity-H,9.0")
+            # This guesses the font of the Transactions Purpose field in the PDF which differs from file to file.
+            if purpose_font_name is None:
+                purpose_font_key = date_section.elements[1].font
+
+            transaction_headers = date_section.elements.filter_by_font(purpose_font_key)
             for i in range(transaction_headers.__len__()):
                 if i < transaction_headers.__len__() - 1:
                     transaction_section_unique_name = self.document.sectioning.create_section(
@@ -117,6 +129,8 @@ class TomorrowParser:
                         date_section.elements.__getitem__(date_section.elements.__len__() - 1)).unique_name
                 self.transaction_section_unique_names.append(transaction_section_unique_name)
 
+        print("-- Transaction Section found: " + str(len(self.transaction_section_unique_names)))
+
         # for unique_name in self.transaction_section_unique_names:
         #     section = self.document.sectioning.get_section(unique_name)
         #     print(section.name)
@@ -125,6 +139,7 @@ class TomorrowParser:
 
     # This method iterates the transaction sections and parses each into a transaction object.
     def parse_transaction_sections(self):
+        print("Parsing Transaction Sections")
         for unique_name in self.transaction_section_unique_names:
             section = self.document.sectioning.get_section(unique_name)
             amount = extract_amount(section)
@@ -138,7 +153,9 @@ class TomorrowParser:
             self.statement.append_transaction(transaction)
 
     def ignore_footers(self):
-        self.document.elements.filter_by_text_contains("Erstellt am").ignore_elements()
+        footer_text = "Erstellt am"
+        print("Ignoring Footers that contain: " + footer_text)
+        self.document.elements.filter_by_text_contains(footer_text).ignore_elements()
 
 
 def month_name_to_number(monthname):
