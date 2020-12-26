@@ -2,8 +2,9 @@ import re
 
 from py_pdf_parser.components import PDFDocument
 from py_pdf_parser.components import PDFElement
-from tomorrow_pdf_converter.t_parser.transaction import Transaction
+
 from tomorrow_pdf_converter.t_parser.statement import Statement
+from tomorrow_pdf_converter.t_parser.transaction import Transaction
 
 closing_element_text = "ZUSAMMENFASSUNG"
 
@@ -23,7 +24,7 @@ def extract_purpose(section):
 
 
 def extract_transaction_type(section):
-    return section.elements.filter_by_regex("Überweisung|Kartenzahlung").extract_single_element().text()
+    return section.elements.filter_by_regex("Überweisung|Kartenzahlung|Lastschrift").extract_single_element().text()
 
 
 def extract_contact(section):
@@ -121,7 +122,7 @@ class TomorrowParser:
                 if i < transaction_headers.__len__() - 1:
                     transaction_section_unique_name = self.document.sectioning.create_section(
                         date_section.name + "_" + transaction_headers.__getitem__(i).text(),
-                        transaction_headers.__getitem__(i), transaction_headers.__getitem__(i + 1)).unique_name
+                        transaction_headers.__getitem__(i), transaction_headers.__getitem__(i + 1), False).unique_name
                 else:
                     transaction_section_unique_name = self.document.sectioning.create_section(
                         date_section.name + "_" + transaction_headers.__getitem__(i).text(),
@@ -160,23 +161,23 @@ class TomorrowParser:
 
 def month_name_to_number(monthname):
     if monthname == "JANUAR":
-        return "1"
+        return "01"
     if monthname == "FEBRUAR":
-        return "2"
+        return "02"
     if monthname == "MÄRZ":
-        return "3"
+        return "03"
     if monthname == "APRIL":
-        return "4"
+        return "04"
     if monthname == "MAI":
-        return "5"
+        return "05"
     if monthname == "JUNI":
-        return "6"
+        return "06"
     if monthname == "JULI":
-        return "7"
+        return "07"
     if monthname == "AUGUST":
-        return "8"
+        return "08"
     if monthname == "SEPTEMBER":
-        return "9"
+        return "09"
     if monthname == "OKTOBER":
         return "10"
     if monthname == "NOVEMBER":
