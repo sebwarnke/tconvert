@@ -1,12 +1,12 @@
-# tconvert - A Tomorrow Bank Statement Converter
+# tconvert - A Tomorrow Bank Statement Converter for MoneyMoney
 
 ## What is this about?
 
-[Tomorrow Bank](https://www.tomorrow.one/) is a great German Online Bank with a ESG policy. Unfortunately, its implemenation of PSD2 compliance does not allow accessing bank accounts other than from one application, i.e. their mobile app. This prevents sychronization of bank transfers into banking applications such as [Money Money](https://moneymoney-app.com/).
+[Tomorrow Bank](https://www.tomorrow.one/) is a great German Online Bank with a ESG policy. Unfortunately, its implemenation of PSD2 compliance does not allow accessing bank accounts other than from one application, i.e. their mobile app. This prevents sychronization of bank transfers into banking applications such as [MoneyMoney](https://moneymoney-app.com/).
 
 
 
-The converter consumes PDF bank statement that can be downloaded from Tomorrow App and converts them into a CSV file that Money Money is capable of importing.
+The converter consumes PDF bank statement that can be downloaded from Tomorrow App and converts them into a CSV file that MoneyMoney is capable of importing.
 
 ## How to use?
 
