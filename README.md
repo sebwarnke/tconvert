@@ -13,6 +13,8 @@ The converter consumes PDF bank statement that can be downloaded from Tomorrow A
 ### Installation
 
 ```shell
+$ git clone https://github.com/sebwarnke/tconvert.git
+§ cd tconvert
 $ pip install .
 # or for MacOS
 $ pip3 install .
