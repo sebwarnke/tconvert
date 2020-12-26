@@ -1,8 +1,8 @@
-# Tomorrow Bank Statement Converter
+# tconverter - A Tomorrow Bank Statement Converter
 
 ## What is this about?
 
-[Tomorrow Bank](https://www.tomorrow.one/) is a great German Online Bank with a Green policy. Unfortunately, its implemenation of PSD2 compliance does not allow accessing bank accounts other than from one application, i.e. their mobile app. This prevents sychronization of bank transfers into banking applications such as [Money Money](https://moneymoney-app.com/).
+[Tomorrow Bank](https://www.tomorrow.one/) is a great German Online Bank with a ESG policy. Unfortunately, its implemenation of PSD2 compliance does not allow accessing bank accounts other than from one application, i.e. their mobile app. This prevents sychronization of bank transfers into banking applications such as [Money Money](https://moneymoney-app.com/).
 
 
 
@@ -22,6 +22,8 @@ $ pip3 install .
 
 ```shell
 $ tconverter bankstatement.pdf
+# or, in case you want to run it against multiple files in a directory
+$ find -name *.pdf -exec tconverter {} \;
 ```
 
 This will create a `bankstatement.csv` file in the same location.
