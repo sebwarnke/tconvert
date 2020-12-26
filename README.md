@@ -1,4 +1,4 @@
-# tconverter - A Tomorrow Bank Statement Converter
+# tconvert - A Tomorrow Bank Statement Converter
 
 ## What is this about?
 
@@ -6,7 +6,7 @@
 
 
 
-This project aims to implement a parser that consumes Tomorrow's monthly statement PDF and converts it into a CSV file to be imported in Money Money.
+The converter consumes PDF bank statement that can be downloaded from Tomorrow App and converts them into a CSV file that Money Money is capable of importing.
 
 ## How to use?
 
@@ -18,12 +18,12 @@ $ pip install .
 $ pip3 install .
 ```
 
-### Run
+### Running
 
 ```shell
-$ tconverter bankstatement.pdf
+$ tconvert bankstatement.pdf
 # or, in case you want to run it against multiple files in a directory
-$ find -name *.pdf -exec tconverter {} \;
+$ find -name *.pdf -exec tconvert {} \;
 ```
 
 This will create a `bankstatement.csv` file in the same location.
@@ -31,7 +31,7 @@ This will create a `bankstatement.csv` file in the same location.
 ### Manual
 
 ```
-usage: tconverter [-h] file_path
+usage: tconvert [-h] file_path
 
 positional arguments:
   file_path
